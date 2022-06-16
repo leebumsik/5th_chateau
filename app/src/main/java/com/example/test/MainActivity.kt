@@ -175,22 +175,26 @@ fun RandomUserListView(randomUsers: List<RandomUser>){
     }
 }
 
-//@Composable
-//fun WineExpvlanation(navHostController: NavHostController, routeAction:RouteAction, randomUser: RandomUser) {
-//
-//    val drawerState = rememberDrawerState(DrawerValue.Closed)
-//    val scope = rememberCoroutineScope()
-//
-//    ModalDrawer(
-//        drawerState = drawerState,
-//        // 모달창 화면 내용
-//        drawerContent = {
-//            Column {
-//                if (randomUser.name == "chateaumoutonrothschild") Text("1샤또")
-//            }
-//        }
-//    )
-//}
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun WineExpvlanation(navHostController: NavHostController, routeAction:RouteAction, randomUser: RandomUser) {
+
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalDrawer(
+        drawerState = drawerState,
+        // 모달창 화면 내용
+        drawerContent = {
+            Column {
+                if (randomUser.name == "chateaumoutonrothschild") Text("1샤또")
+            }
+        },
+        content = {
+            CView()
+        }
+    )
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -221,13 +225,16 @@ fun RandomUserView(randomUser: RandomUser){
 //                )
 
                      // 이미지 원클릭 시도2 : 실패
-//                    Button(
-//                        modifier = Modifier.background(color = Color.LightGray),
-//                        onClick = { composable() { WineExpvlanation(navHostController, routeAction, randomUser) }}
-//                            )
-//                    {
-//                        ProfileImg(imgUrl = randomUser.profileImage)
-//                    }
+                    Button(
+                        modifier = Modifier.size(70.dp, 100.dp).background(color = Color.Black),
+                        onClick = {
+                            scope.launch { drawerState.open() }
+                        }
+                            )
+                    {
+                        ProfileImg(modifier = Modifier,
+                            imgUrl = randomUser.profileImage)
+                    }
 
                     // 이미지 원클릭 시도3 : 실패
 //                    ProfileImg(imgUrl = randomUser.profileImage,
@@ -237,7 +244,7 @@ fun RandomUserView(randomUser: RandomUser){
 //                        }
 //                    })
 
-                    ProfileImg(imgUrl = randomUser.profileImage)
+//                    ProfileImg(imgUrl = randomUser.profileImage)
 
                     Column(modifier = Modifier
                         .padding(1.dp)
@@ -530,7 +537,7 @@ fun ColumnScope.NavButton(route: NAV_ROUTE, routeAction: RouteAction){
     }
 }
 
-val winenameconuntry = mapOf("chateaumoutonrothschild" to "F", "chateaumargaux" to "France",
+val winenameconuntry = mapOf("chateaumoutonrothschild" to "France", "chateaumargaux" to "France",
     "chateaulatour" to "France", "chateaulafiterothschild" to "France",
     "chateauhautbrion" to "France")
 
