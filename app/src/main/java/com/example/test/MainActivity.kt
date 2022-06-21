@@ -1,64 +1,39 @@
 package com.example.test
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.*
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -66,9 +41,6 @@ import com.example.randomuserlist.utils.DummyDataProvider
 import com.example.randomuserlist.utils.RandomUser
 import com.example.test.ui.theme.Compose_fundamental_tutorialTheme
 import kotlinx.coroutines.launch
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.random.Random
 import kotlinx.coroutines.CoroutineScope
 
 class MainActivity : ComponentActivity() {
@@ -87,6 +59,14 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+//private fun setListener(){
+//    binding.apply{
+//        searchIcon.also{
+//            it.isSunmitButtonEnabld = true
+//            it.setOnQueryTextListener(SearchView.OnQueryTextListener())
+//        }
+//    }
+//}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -111,6 +91,8 @@ fun WineExplanation() {
 
 
     ModalDrawer(
+        // 스와이프 기능
+        gesturesEnabled = true,
         drawerState = drawerState,
         // 모달창 화면 내용
         drawerContent = {
@@ -252,8 +234,11 @@ fun RandomUserView(
     randomUser: RandomUser,
     scope: CoroutineScope,
     drawerState: DrawerState,
-    changeSelectionWine: (RandomUser) -> Unit
+    changeSelectionWine: (RandomUser) -> Unit,
 ) {
+    val openDialog = remember { mutableStateOf(false)  }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     val typography = MaterialTheme.typography
     Column() {
         Card(
@@ -270,14 +255,13 @@ fun RandomUserView(
                     Text(
                         text = randomUser.name,
                         style = typography.subtitle1,
-                        fontSize = 12.sp,
+                        fontSize = 17.sp,
                         modifier = Modifier.padding(7.dp)
                     )
 
                     Row(
-                        modifier = Modifier.padding(0.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
+                        verticalAlignment = Alignment.Top,
                     ) {
                         ProfileImg(
                             modifier = Modifier
@@ -285,31 +269,56 @@ fun RandomUserView(
                                 .size(100.dp),
                             imgUrl = randomUser.profileImage
                         )
+                        Column() {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Button(
+                                    modifier = Modifier.size(88.dp, 40.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = Color.Blue, contentColor = Color.White),
+                                    onClick = {
+                                        changeSelectionWine(randomUser)
+                                        scope.launch { drawerState.open() }
+                                    })
+                                {
+                                    Text(text = "상세정보")
+                                }
 
-                        Button(
-                            modifier = Modifier.size(88.dp, 40.dp),
-                            onClick = {
-                                changeSelectionWine(randomUser)
-                                scope.launch { drawerState.open() }
-                            })
-                        {
-                            Text(text = "상세정보")
-                        }
+                                Button(
+                                    modifier = Modifier.size(70.dp, 40.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = Color.Blue, contentColor = Color.White),
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                "${randomUser.grade}",
+                                                "확인",
+                                                SnackbarDuration.Short)}
+                                    })
+                                {
+                                    Text(text = "평점")
+                                }
 
-                        Button(
-                            modifier = Modifier.size(70.dp, 40.dp),
-                            onClick = {
-                            })
-                        {
-                            Text(text = "평점")
-                        }
+                                Button(
+                                    modifier = Modifier.size(70.dp, 40.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = Color.Blue, contentColor = Color.White),
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                "${randomUser.price}",
+                                                "확인",
+                                                SnackbarDuration.Short)}
+                                    }
+                                )
+                                {
+                                    Text(text = "가격")
+                                }
+                            }
 
-                        Button(
-                            modifier = Modifier.size(70.dp, 40.dp),
-                            onClick = {
-                            })
-                        {
-                            Text(text = "가격")
+                            // 스낵바가 보여지는 부분
+                            SnackbarHost(hostState = snackbarHostState, modifier = Modifier.size(260.dp, 70.dp))
                         }
                     }
                 }
@@ -403,7 +412,6 @@ fun Modifier.simpleVerticalScrollbar(
     }
 }
 
-
 val winenameconuntry = mapOf("chateaumoutonrothschild" to "France", "chateaumargaux" to "France",
     "chateaulatour" to "France", "chateaulafiterothschild" to "France",
     "chateauhautbrion" to "France")
@@ -411,170 +419,10 @@ val winenameconuntry = mapOf("chateaumoutonrothschild" to "France", "chateaumarg
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TextFieldTest(randomUser: RandomUser){
-
-    var userInput by remember { mutableStateOf(String()) }
-
-    var userInputsave by remember { mutableStateOf(String()) }
-
-    var inputCheck by remember { mutableStateOf(String()) }
-
-    val shouldShowuserInput = remember { mutableStateOf(false) }
-
-    val userInputResource: (Boolean) -> Int = {
-        // if 안에 it 은 : it == true 와 같은 뜻
-        if(it) {
-            R.drawable.ic_baseline_check_24
-            // 디폴트값으로 false를 가지고 있어서 맨 처음 화면은 - 이런 아이콘 표시
-        } else {
-            R.drawable.ic_baseline_receipt_24
-        }
-    }
-
-    Column(
-        Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-    ) {
-
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            // 값은 사용자가 입력한 값
-            value = userInput,
-            // false라서 입력란을 한줄이상 사용 가능, true는 한줄만 사용
-            singleLine = false,
-            // 최대 2줄 입력 가능
-            maxLines = 2,
-            // 키보드..타입 알지?
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            // 키보드를 통해 입력된 새로운값을(newValue) userInput 변수에 넣어준다
-            onValueChange = { newValue -> userInput = newValue },
-            //
-            label = { Text("정답 입력") },
-            //
-            placeholder = { Text(if (inputCheck == "") {"작성해 주세요"} else {inputCheck}) },
-            // 화면 왼쪽 아이콘
-            leadingIcon = { Icon(imageVector = Icons.Default.Add, contentDescription = null)},
-            // 화면 오른쪽 아이콘
-//            trailingIcon = { Icon(imageVector = Icons.Default.Check, contentDescription = null)},
-
-//            참조 수정
-            trailingIcon = { IconButton(onClick = {
-                // 아이콘을 클릭하면 로그를 찍음
-                Log.d("test", "TextFieldTest: 비밀번호 visible 버튼 클릭")
-                // 아이콘을 클릭하면 shouldShowuserInput.value 값을 반대로 변경 해줌
-                shouldShowuserInput.value = !shouldShowuserInput.value
-                if (shouldShowuserInput.value == true) {
-                    Log.d("test", "userInput"+userInput)
-//                    if (userInput == "Argentina")
-                    if (userInput == "${winenameconuntry.getValue("${randomUser.name}")}")
-                    {
-                        userInputsave = userInput
-                        userInput = ""
-                        inputCheck = "정답입니다"
-                    }
-                    else {
-                        userInputsave = userInput
-                        userInput = ""
-                        inputCheck = "오답입니다"
-                    }
-                }
-                else {
-                    userInput = userInputsave
-                }
-            })
-            {
-                // 아이콘은 shouldShowuserInput.value 값을 userInputResource 변수를 이용하여 불리안값으로 변경
-                // 위 불리안값을 이용하여 아이콘 변경
-                Icon(painter = painterResource(id = userInputResource(shouldShowuserInput.value)),
-                    contentDescription = null
-                )
-            }
-            }
-        )
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun ButtonsContainer(randomUser: RandomUser){
-    //
-    val buttonBorderGradient = Brush.horizontalGradient(listOf(Color.Yellow, Color.Red))
-    // 클릭이나 드래그 등의 상태를 반영하는 interactionSource 의 상태를 기억 : 사용자의 상태
-    val interactionSource = remember { MutableInteractionSource() }
-    // 위 사용자의 상태에서 클릭된 상태를 isPressed 변수에 담기
-    val isPressed by interactionSource.collectIsPressedAsState()
-    // pressStatusTitle(눌림 상태 제목) 변수는 위의 인터렉션소스 변수를 통해 현재 상태를 가져와서
-    // 클릭 상태일때는 버튼을 누르고 있다, 그외는 버튼에서 손을 뗏다 라고 제목을 변경해 준다
-    // 밸류값 앞글자만 가져온다 : 실패~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    val pressStatusTitle = if (isPressed) "${winenameconuntry.getValue("${(randomUser.name)}")[0]}+lower" else "힌트 버튼 꾹~"
-    // isPressed 함수도 동일한거 두번째 하나더 추가
-    val interactionSourceForSecondBtn = remember { MutableInteractionSource() }
-    val isPressedForSecondBtn by interactionSourceForSecondBtn.collectIsPressedAsState()
-    // 버튼 눌렸을때 반경.?.. 암튼 위 글자 바뀌는거랑 동일한 방법으로 그림자 살리고 죽이고
-    val pressedBtnRadius = if (isPressed) 0.dp else 5.dp
-    // 버튼 눌렸을때 애니 추가 : Dp에 바로 적용 타겟값을 pressedBtnRadius 의 조건과 동일하게
-    val pressedBtnRadiusWithAnim: Dp by animateDpAsState( if (isPressed) 0.dp else 5.dp )
-
-    Column(
-        modifier = Modifier
-//            .background(Color.Black)
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.Top),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // pressStatusTitle 함수 사용하여 아래 Text를 변경하여 진행
-        Text(text = "$pressStatusTitle", modifier = Modifier.padding(top=5.dp),)
-        Button(
-            // ButtonDefaults.elevation 3가지 설정 가능
-            elevation = ButtonDefaults.elevation(
-                // 디폴트는 기본 상태
-                defaultElevation = 10.dp,
-                // 버튼을 눌렀을때
-                pressedElevation = 0.dp,
-                // 버튼 클릭이 불가능 할때 : enabled = false
-                disabledElevation = 0.dp
-            ),
-            // 버튼 클릭이 가능하도록 투루로 설정
-            enabled = true,
-            shape = RoundedCornerShape(5.dp),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color(0xff5FD068),
-                disabledBackgroundColor = Color.Gray),
-            border = BorderStroke(2.dp, Color.Black),
-            contentPadding = PaddingValues(horizontal = 1.dp, vertical = 1.dp),
-            interactionSource = interactionSource,
-            modifier = Modifier
-                .size(60.dp, 100.dp)
-                .drawColoredShadow(
-                    color = Color.Green,
-                    alpha = 0.5f,
-                    borderRadius = 10.dp,
-                    shadowRadius = pressedBtnRadiusWithAnim,
-                    offsetX = 5.dp,
-                    offsetY = 5.dp
-                ),
-            onClick = {
-                Log.d("test", "ButtonsContainer: 힌트 버튼 클릭")
-            }) {
-            // 의문점 : 한번 클릭 바꿀러면..
-            interactionSource.collectIsPressedAsState() != interactionSource.collectIsPressedAsState()
-            Text(text = "힌트",
-                // 폰트 스타일 1값은 기울기 0은 보통 그리고 옵션 없음
-                style = TextStyle(fontStyle = FontStyle(1),
-                    // 폰트 웨이트 600은 SemiBold 그외 여러가지 옵션 있음
-                    fontWeight = FontWeight(600)))
-        }
-    }
-}
-
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
 fun DefaultPreview() {
     Compose_fundamental_tutorialTheme {
-        WineExplanation()
+
     }
 }
+
 
