@@ -87,6 +87,109 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun WineExplanation() {
+
+    // DrawerValue.Closed : 서랍을 닫았을때의 상태
+    //rememberDrawerState : 서랍의 상태가 닫였는지, 열렸는지 기억한다
+    // => 즉 서랍이 닫힌 상태를 drawerState 변수로 저장한다
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    // 모달이 닫혀있는 상태로 기억을 하고 content 화면을 띄워주니 코루틴 스코프를 기억해야 한다?????
+    val scope = rememberCoroutineScope()
+    //
+    var selectionWine by remember { mutableStateOf(RandomUser()) }
+    // changeSelectionWine 변수는 RandomUser 를 입력으로 받아 Unit(비어있는) 출력이 없다
+    // 처리는 위에서 입력받은 RandomUser 를 selectedWine 으로 받아 selectionWine 으로 바꿔 준다
+    val changeSelectionWine: (RandomUser) -> Unit =
+        {
+                selectedWine ->
+            selectionWine = selectedWine
+        }
+
+
+
+    ModalDrawer(
+        drawerState = drawerState,
+        // 모달창 화면 내용
+        drawerContent = {
+            if (selectionWine.name == "chateaumoutonrothschild")
+            {
+                Image(
+                    modifier = Modifier.size(500.dp),
+                    painter = painterResource(id = R.drawable.chateaumoutonrothschild),
+                    contentDescription = "샤또 무똥 로칠드")
+                Text(
+                    "\n 이름 : 샤또 무똥 로칠드 " +
+                            "\n 지역 : 뽀이약" +
+                            "\n 특징 : 유명 미술품을 라벨에 프린트 적용" +
+                            "\n 처음 등급을 제정할 당시는 2등급" +
+                            "\n 이후 꾸준한 노력으로 1973년에 1등급")
+            }
+
+            if (selectionWine.name == "chateaulafiterothschild")
+            {
+                Image(
+                    modifier = Modifier.size(500.dp),
+                    painter = painterResource(id = R.drawable.chateaulafiterothschild),
+                    contentDescription = "샤또 라피트 로칠드")
+                Text(
+                    "\n 이름 : 샤또 라피트 로칠드 " +
+                            "\n 지역 : 뽀이약 " +
+                            "\n 특징 : 베르사이유 궁의 공식 와인" +
+                            "\n 루이 15세가 지방으로 다시 돌아온 총독에게 젊어 보이는 비결을 묻자" +
+                            "\n 라피트라고 말하여 베으사이유 궁의 공식 와인이 됨")
+            }
+
+
+            if (selectionWine.name == "chateaulatour")
+            {
+                Image(
+                    modifier = Modifier.size(500.dp),
+                    painter = painterResource(id = R.drawable.chateaulatour),
+                    contentDescription = "샤또 라뚜르")
+                Text(
+                    "\n 이름 : 샤또 라뚜르 " +
+                            "\n 지역 : 뽀이약 " +
+                            "\n 특징 : 강을 거슬러 올라오는 해적을 막기 위해 조정된 탑이 그려짐" +
+                            "\n 프랑스어로 라뚜르는 탑이라는 뜻이다" +
+                            "\n 장기 숙성형 와인으로 5대 샤또 중 가장 느리게 숙성")
+            }
+
+            if (selectionWine.name == "chateaumargaux")
+            {
+                Image(
+                    modifier = Modifier.size(500.dp),
+                    painter = painterResource(id = R.drawable.chateaumargaux),
+                    contentDescription = "샤또 마고")
+                Text(
+                    "\n 이름 : 샤또 마고 " +
+                            "\n 지역 : 마고 " +
+                            "\n 특징 : 메독지역의 동남쪽에 위치한 마고마을은 맛이 우아하고 섬세" +
+                            "\n 노인과 바다로 잘 알려진 헤미웨이가 사랑한 와인" +
+                            "\n 그는 손녀를 헤밍웨이 마고라 불렀으며, 손녀와 마고를 사랑했다")
+            }
+
+            if (selectionWine.name == "chateauhautbrion")
+            {
+                Image(
+                    modifier = Modifier.size(500.dp),
+                    painter = painterResource(id = R.drawable.chateauhautbrion),
+                    contentDescription = "샤또 오브리옹")
+                Text(
+                    "\n 이름 : 샤또 오브리옹 " +
+                            "\n 지역 : 그라브의 페삭 " +
+                            "\n 특징 : 5대 사또 중 유일하게 메독지역이 아닌 그라브페삭 지역" +
+                            "\n 로빈슨 크루소로 잘 알려진 다니엘 디포가 사랑한 와인" +
+                            "\n 걸리버 여행기로 잘 알려진 조나단 스위프트가 사랑한 와인")
+            } },
+        content = {
+            CView(scope, drawerState, changeSelectionWine)
+        }
+    )
+}
+
 @Composable
 fun MyAppBar(){
     TopAppBar(elevation = 10.dp,
@@ -145,114 +248,12 @@ fun RandomUserListView(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WineExplanation() {
-
-    // DrawerValue.Closed : 서랍을 닫았을때의 상태
-    //rememberDrawerState : 서랍의 상태가 닫였는지, 열렸는지 기억한다
-    // => 즉 서랍이 닫힌 상태를 drawerState 변수로 저장한다
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    // 모달이 닫혀있는 상태로 기억을 하고 content 화면을 띄워주니 코루틴 스코프를 기억해야 한다?????
-    val scope = rememberCoroutineScope()
-    //
-    var selectionWine by remember { mutableStateOf(RandomUser()) }
-    // changeSelectionWine 변수는 RandomUser 를 입력으로 받아 Unit(비어있는) 출력이 없다
-    // 처리는 위에서 입력받은 RandomUser 를 selectedWine 으로 받아 selectionWine 으로 바꿔 준다
-    val changeSelectionWine: (RandomUser) -> Unit =
-        {
-        selectedWine ->
-        selectionWine = selectedWine
-        }
-
-
-
-    ModalDrawer(
-        drawerState = drawerState,
-        // 모달창 화면 내용
-        drawerContent = {
-            if (selectionWine.name == "chateaumoutonrothschild")
-            {
-                Image(
-                    modifier = Modifier.size(500.dp),
-                    painter = painterResource(id = R.drawable.chateaumoutonrothschild),
-                    contentDescription = "샤또 무똥 로칠드")
-                Text(
-                "\n 이름 : 샤또 무똥 로칠드 " +
-                        "\n 지역 : 뽀이약" +
-                        "\n 특징 : 유명 미술품을 라벨에 프린트 적용" +
-                        "\n 처음 등급을 제정할 당시는 2등급" +
-                        "\n 이후 꾸준한 노력으로 1973년에 1등급")
-            }
-
-            if (selectionWine.name == "chateaulafiterothschild")
-            {
-                Image(
-                    modifier = Modifier.size(500.dp),
-                    painter = painterResource(id = R.drawable.chateaulafiterothschild),
-                    contentDescription = "샤또 라피트 로칠드")
-                Text(
-                "\n 이름 : 샤또 라피트 로칠드 " +
-                        "\n 지역 : 뽀이약 " +
-                        "\n 특징 : 베르사이유 궁의 공식 와인" +
-                        "\n 루이 15세가 지방으로 다시 돌아온 총독에게 젊어 보이는 비결을 묻자" +
-                        "\n 라피트라고 말하여 베으사이유 궁의 공식 와인이 됨")
-            }
-
-
-            if (selectionWine.name == "chateaulatour")
-            {
-                Image(
-                    modifier = Modifier.size(500.dp),
-                    painter = painterResource(id = R.drawable.chateaulatour),
-                    contentDescription = "샤또 라뚜르")
-                Text(
-                    "\n 이름 : 샤또 라뚜르 " +
-                            "\n 지역 : 뽀이약 " +
-                            "\n 특징 : 강을 거슬러 올라오는 해적을 막기 위해 조정된 탑이 그려짐" +
-                            "\n 프랑스어로 라뚜르는 탑이라는 뜻이다" +
-                            "\n 장기 숙성형 와인으로 5대 샤또 중 가장 느리게 숙성")
-            }
-
-            if (selectionWine.name == "chateaumargaux")
-            {
-                Image(
-                    modifier = Modifier.size(500.dp),
-                    painter = painterResource(id = R.drawable.chateaumargaux),
-                    contentDescription = "샤또 마고")
-                Text(
-                    "\n 이름 : 샤또 마고 " +
-                            "\n 지역 : 마고 " +
-                            "\n 특징 : 메독지역의 동남쪽에 위치한 마고마을은 맛이 우아하고 섬세" +
-                            "\n 노인과 바다로 잘 알려진 헤미웨이가 사랑한 와인" +
-                            "\n 그는 손녀를 헤밍웨이 마고라 불렀으며, 손녀와 마고를 사랑했다")
-            }
-
-            if (selectionWine.name == "chateauhautbrion")
-            {
-                Image(
-                    modifier = Modifier.size(500.dp),
-                    painter = painterResource(id = R.drawable.chateauhautbrion),
-                    contentDescription = "샤또 오브리옹")
-                Text(
-                    "\n 이름 : 샤또 오브리옹 " +
-                            "\n 지역 : 그라브의 페삭 " +
-                            "\n 특징 : 5대 사또 중 유일하게 메독지역이 아닌 그라브페삭 지역" +
-                            "\n 로빈슨 크루소로 잘 알려진 다니엘 디포가 사랑한 와인" +
-                            "\n 걸리버 여행기로 잘 알려진 조나단 스위프트가 사랑한 와인")
-            } },
-        content = {
-            CView(scope, drawerState, changeSelectionWine)
-        }
-    )
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
 fun RandomUserView(
     randomUser: RandomUser,
     scope: CoroutineScope,
     drawerState: DrawerState,
     changeSelectionWine: (RandomUser) -> Unit
-){
+) {
     val typography = MaterialTheme.typography
     Column() {
         Card(
@@ -265,43 +266,57 @@ fun RandomUserView(
             shape = RoundedCornerShape(15.dp)
         ) {
             Column() {
-                Row(modifier = Modifier.padding(5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
+                Column() {
+                    Text(
+                        text = randomUser.name,
+                        style = typography.subtitle1,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(7.dp)
+                    )
 
-                    Button(
-                        modifier = Modifier
-                            .size(60.dp, 100.dp)
-                            .background(color = Color.Black),
-                        onClick = {
-                            changeSelectionWine(randomUser)
-                            scope.launch { drawerState.open()}
+                    Row(
+                        modifier = Modifier.padding(0.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        ProfileImg(
+                            modifier = Modifier
+                                .padding(0.dp)
+                                .size(100.dp),
+                            imgUrl = randomUser.profileImage
+                        )
+
+                        Button(
+                            modifier = Modifier.size(88.dp, 40.dp),
+                            onClick = {
+                                changeSelectionWine(randomUser)
+                                scope.launch { drawerState.open() }
+                            })
+                        {
+                            Text(text = "상세정보")
                         }
-                        )
-                    {
-                        ProfileImg(modifier = Modifier.fillMaxSize().padding(0.dp),
-                            imgUrl = randomUser.profileImage)
+
+                        Button(
+                            modifier = Modifier.size(70.dp, 40.dp),
+                            onClick = {
+                            })
+                        {
+                            Text(text = "평점")
+                        }
+
+                        Button(
+                            modifier = Modifier.size(70.dp, 40.dp),
+                            onClick = {
+                            })
+                        {
+                            Text(text = "가격")
+                        }
                     }
-
-                    Column(modifier = Modifier
-                        .padding(1.dp)
-                        )
-                    { Text(text = randomUser.name,
-                            style = typography.subtitle1,
-                            fontSize = 12.sp)
-                        Text(text = randomUser.description,
-                            style = typography.body1) }
-
-                    ButtonsContainer(randomUser)
-
                 }
-                TextFieldTest(randomUser)
             }
         }
     }
 }
-
 
 
 @SuppressLint("UnrememberedMutableState")
@@ -529,14 +544,16 @@ fun ButtonsContainer(randomUser: RandomUser){
             border = BorderStroke(2.dp, Color.Black),
             contentPadding = PaddingValues(horizontal = 1.dp, vertical = 1.dp),
             interactionSource = interactionSource,
-            modifier = Modifier.size(60.dp, 100.dp).drawColoredShadow(
-                color = Color.Green,
-                alpha = 0.5f,
-                borderRadius = 10.dp,
-                shadowRadius = pressedBtnRadiusWithAnim,
-                offsetX = 5.dp,
-                offsetY = 5.dp
-            ),
+            modifier = Modifier
+                .size(60.dp, 100.dp)
+                .drawColoredShadow(
+                    color = Color.Green,
+                    alpha = 0.5f,
+                    borderRadius = 10.dp,
+                    shadowRadius = pressedBtnRadiusWithAnim,
+                    offsetX = 5.dp,
+                    offsetY = 5.dp
+                ),
             onClick = {
                 Log.d("test", "ButtonsContainer: 힌트 버튼 클릭")
             }) {
