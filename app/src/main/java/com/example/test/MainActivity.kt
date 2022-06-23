@@ -1,13 +1,10 @@
 package com.example.test
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
-import android.widget.SearchView
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -39,9 +36,12 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.randomuserlist.utils.DummyDataProvider
 import com.example.randomuserlist.utils.RandomUser
+import com.example.randomuserlist.utils.fetchLastResult
+import com.example.randomuserlist.utils.fetchLastResult2
 import com.example.test.ui.theme.Compose_fundamental_tutorialTheme
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
+import java.util.*
 
 class MainActivity : ComponentActivity() {
 
@@ -58,15 +58,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-//private fun setListener(){
-//    binding.apply{
-//        searchIcon.also{
-//            it.isSunmitButtonEnabld = true
-//            it.setOnQueryTextListener(SearchView.OnQueryTextListener())
-//        }
-//    }
-//}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -87,8 +78,6 @@ fun WineExplanation() {
                 selectedWine ->
             selectionWine = selectedWine
         }
-
-
 
     ModalDrawer(
         // 스와이프 기능
@@ -236,7 +225,6 @@ fun RandomUserView(
     drawerState: DrawerState,
     changeSelectionWine: (RandomUser) -> Unit,
 ) {
-    val openDialog = remember { mutableStateOf(false)  }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val typography = MaterialTheme.typography
@@ -290,9 +278,10 @@ fun RandomUserView(
                                     colors = ButtonDefaults.buttonColors(
                                         backgroundColor = Color.Blue, contentColor = Color.White),
                                     onClick = {
+                                        changeSelectionWine(randomUser)
                                         coroutineScope.launch {
                                             snackbarHostState.showSnackbar(
-                                                "${randomUser.grade}",
+                                                "${fetchLastResult(randomUser.url)}",
                                                 "확인",
                                                 SnackbarDuration.Short)}
                                     })
@@ -305,9 +294,10 @@ fun RandomUserView(
                                     colors = ButtonDefaults.buttonColors(
                                         backgroundColor = Color.Blue, contentColor = Color.White),
                                     onClick = {
+                                        changeSelectionWine(randomUser)
                                         coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                "${randomUser.price}",
+                                            snackbarHostState.showSnackbar("￦ " + "%,.0f".format(Locale.KOREAN,
+                                                "${fetchLastResult2(randomUser.id)}".toFloat()) + " 원",
                                                 "확인",
                                                 SnackbarDuration.Short)}
                                     }
@@ -336,8 +326,6 @@ fun ProfileImg(imgUrl: Int, modifier: Modifier = Modifier){
     // 이미지 모디파이어
     val imageModifier = modifier
         .fillMaxSize()
-//        .clip(RoundedCornerShape(10.dp))
-//        .clip(CircleShape)
 
     // 이미지 사용가능하도록 하는 라이브러리 글라이드 사용
     Glide.with(LocalContext.current)
@@ -356,7 +344,6 @@ fun ProfileImg(imgUrl: Int, modifier: Modifier = Modifier){
     // 비트 맵이 있다면
     bitmap.value?.asImageBitmap()?.let { fetchedBitmap ->
         Image(bitmap = fetchedBitmap,
-//            contentScale = ContentScale.Fit,
             contentDescription = null,
             modifier = imageModifier
         )
@@ -412,17 +399,13 @@ fun Modifier.simpleVerticalScrollbar(
     }
 }
 
-val winenameconuntry = mapOf("chateaumoutonrothschild" to "France", "chateaumargaux" to "France",
-    "chateaulatour" to "France", "chateaulafiterothschild" to "France",
-    "chateauhautbrion" to "France")
-
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DefaultPreview() {
     Compose_fundamental_tutorialTheme {
-
+        WineExplanation()
     }
 }
+
 
 
